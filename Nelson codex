@@ -1,0 +1,182 @@
+ v<body>
+ v<body>
+ v<body>
+ v<body>
+ v<body>
+    <header>
+        <h1>⚡ Nelson codex Studio</h1>
+        <p>Select a lesson on the left and start coding!</p>
+    </header>
+
+    <div class="main-layout">
+        <aside class="sidebar">
+            <h2>HTML Basics</h2>
+            <nav>
+                <a href="#" class="lesson-link active" data-lesson="1">1. Creating Headings</a>
+                <a href="#" class="lesson-link" data-lesson="2">2. Styling Text</a>
+                <a href="#" class="lesson-link" data-lesson="3">3. Interactive Buttons</a>
+            </nav>
+        </aside>
+
+        <div class="editor-container">
+            <div class="input-area">
+                <div class="box">
+                    <label>Instructions & HTML5</label>
+                    <textarea id="html-code"></textarea>
+                </div>
+                <div class="box">
+                    <label>CSS3</label>
+                    <textarea id="css-code"></textarea>
+                </div>
+                <div class="box">
+                    <label>JavaScript</label>
+                    <textarea id="js-code"></textarea>
+                </div>
+            </div>
+            
+            <div class="preview-area">
+                <label>Live Preview</label>
+                <iframe id="preview-window"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+/* Layout wrapper to handle the sidebar side-by-side with the editor */
+.main-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: 260px;
+    background-color: #1e293b;
+    border-right: 1px solid #334155;
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sidebar h2 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94a3b8;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar a {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar a:hover {
+    background-color: #334155;
+    color: #fff;
+}
+
+.sidebar a.active {
+    background-color: #0284c7;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Ensure the editor container takes up the remaining horizontal space */
+.editor-container {
+    flex: 1;
+    display: flex;
+    padding: 15px;
+    gap: 15px;
+}
+// 1. Define our lessons database
+const lessons = {
+    "1": {
+        css: "h1 {\n  color: #38bdf8;\n  font-family: sans-serif;\n}",
+        html: "\n<h1>Welcome to coding!</h1>\n<p>Nelson codex Studio.</p>",
+        js: "// No JavaScript needed for this lesson!"
+    },
+    "2": {
+        html: "\n<div class='card'>\n  <h2>Box Styling</h2>\n  <p>Add a background color and padding in the CSS tab.</p>\n</div>",
+        css: ".card {\n  border: 2px dashed #ff007f;\n  padding: 20px;\n  text-align: center;\n}",
+        js: ""
+    },
+    "3": {
+        html: "\n<button id='magic-btn'>Click Me!</button>",
+        css: "button {\n  padding: 10px 20px;\n  background: #22c55e;\n  color: white;\n  border: none;\n  border-radius: 5px;\n  cursor: pointer;\n}",
+        js: "const btn = document.getElementById('magic-btn');\n\nbtn.addEventListener('click', () => {\n  alert('🎉 You triggered JavaScript code!');\n});"
+    }
+};
+
+// 2. Core compilation function (same as before)
+function runCode() {
+    const htmlCode = document.getElementById("html-code").value;
+    const cssCode = document.getElementById("css-code").value;
+    const jsCode = document.getElementById("js-code").value;
+    const previewWindow = document.getElementById("preview-window").contentWindow.document;
+
+    previewWindow.open();
+    previewWindow.write(`
+        <!DOCTYPE html>
+        <html>
+        <head><style>${cssCode}</style></head>
+        <body>
+            ${htmlCode}
+            <script>
+                try { ${jsCode} } catch (err) { 
+                    document.body.innerHTML += '<div style=\"color:red; margin-top:20px;\">Error: ' + err.message + '</div>'; 
+                }
+            <\/script>
+        </body>
+        </html>
+    `);
+    previewWindow.close();
+}
+
+// 3. Function to load a specific lesson into the boxes
+function loadLesson(lessonId) {
+    const lesson = lessons[lessonId];
+    if (!lesson) return;
+
+    document.getElementById("html-code").value = lesson.html;
+    document.getElementById("css-code").value = lesson.css;
+    document.getElementById("js-code").value = lesson.js;
+    
+    // Refresh the preview with the new code
+    runCode();
+}
+
+// 4. Setup event listeners for the sidebar navigation links
+document.querySelectorAll(".lesson-link").forEach(link => {
+    link.addEventListener("click", (e) => {
+        e.preventDefault();
+        
+        // Remove active styling from previous link and add to clicked link
+        document.querySelector(".lesson-link.active").classList.remove("active");
+        link.classList.add("active");
+        
+        // Load the selected lesson
+        const lessonId = link.getAttribute("data-lesson");
+        loadLesson(lessonId);
+    });
+});
+
+// 5. Watch for real-time typing in text boxes
+document.getElementById("html-code").addEventListener("keyup", runCode);
+document.getElementById("css-code").addEventListener("keyup", runCode);
+document.getElementById("js-code").addEventListener("keyup", runCode);
+
+// 6. Initialize the page by loading Lesson 1 on startup
+loadLesson("1");
